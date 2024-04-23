@@ -124,9 +124,17 @@ void PlayerIdle::Update(Player& player, float delta_time, Camera2D camera) {
         }
     
     if(IsKeyPressed(KEY_LEFT_SHIFT)) {
-        boomerang.Controller[0].Coords = Vector2Add(player.position, {40, 20});
-        boomerang.Controller[1].Coords = Vector2Add(player.position, {1000, 0});
-        boomerang.Controller[2].Coords = player.position;
+        if (!boomerang.direction) {
+            boomerang.Controller[0].Coords = Vector2Add(player.position, {40, 20});
+            boomerang.Controller[1].Coords = Vector2Add(player.position, {1000, 0});
+            boomerang.Controller[2].Coords = player.position;
+
+        }
+        else {
+            boomerang.Controller[0].Coords = Vector2Add(player.position, {-40, 20});
+            boomerang.Controller[1].Coords = Vector2Add(player.position, {-1000, 0});
+            boomerang.Controller[2].Coords = player.position;
+        }
         for (int i = 0; i < boomer_pack; ++i) {
             if (throws[i]->exists) {
                 // Set bullet properties
@@ -145,7 +153,8 @@ void PlayerIdle::Update(Player& player, float delta_time, Camera2D camera) {
                         dest = Vector2Scale(Vector2Normalize(Vector2Subtract(dest, throws[i]->position)), throws[i]->speed * delta_time);    
                         }
                 }
-            
+                std::cout << dest.x << std::endl;
+                std::cout << dest.y << std::endl;
                 throws[i]->position = Vector2Add(throws[i]->position, dest);
 
                 if (CheckCollisionCircles(player.position, player.radius, throws[i]->position, throws[i]->collision_rad)) {
@@ -167,8 +176,10 @@ void PlayerMoving::Update(Player& player, float delta_time, Camera2D camera) {
     player.velocity.x = 0;
     if (IsKeyDown(KEY_A)) {
         player.velocity.x = -player.speed;
+        boomerang.direction = true;
     } else if (IsKeyDown(KEY_D)) {
         player.velocity.x = player.speed;
+        boomerang.direction = false;
     }
     else if(player.velocity.x == 0 && player.velocity.y == 0) {
         player.SetState(&player.idle);
@@ -179,10 +190,17 @@ void PlayerMoving::Update(Player& player, float delta_time, Camera2D camera) {
     }
 
     if(IsKeyPressed(KEY_LEFT_SHIFT)) {
+        if (!boomerang.direction) {
+            boomerang.Controller[0].Coords = Vector2Add(player.position, {40, 20});
+            boomerang.Controller[1].Coords = Vector2Add(player.position, {1000, 0});
+            boomerang.Controller[2].Coords = player.position;
 
-        boomerang.Controller[0].Coords = Vector2Add(player.position, {40, 20});
-        boomerang.Controller[1].Coords = Vector2Add(player.position, {1000, 0});
-        boomerang.Controller[2].Coords = player.position;
+        }
+        else {
+            boomerang.Controller[0].Coords = Vector2Add(player.position, {-40, 20});
+            boomerang.Controller[1].Coords = Vector2Add(player.position, {-1000, 0});
+            boomerang.Controller[2].Coords = player.position;
+        }
 
     }
 

@@ -86,6 +86,7 @@ class Bezier {
         std::vector<Vector2> tang_placer; //Repository for tangent drawing point end
         std::vector<Vector2> perp_placer; //Repository for perpendicular drawing point end
 
+        bool direction;
         int degree_input; //Degree of the curve
         int control_input; //Number of control points
         int tangent_input; //Number of tangents in the curve

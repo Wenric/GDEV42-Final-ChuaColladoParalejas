@@ -44,6 +44,9 @@ public:
     float health;
     float radius;
     float speed;
+    bool isAlive;
+    bool isHit;
+    float iframe_time;
 
     void CheckTileCollision(const Rectangle tile) {
         Vector2 closest_point;
@@ -58,7 +61,16 @@ public:
             Vector2 movement = Vector2Scale(col_norm, overlap);
             position = Vector2Add(position, movement);
         }
+    }
 
+    void TakeDamage(float dmg) {
+        if (!isHit) {
+            health -= dmg;
+        }
+        isHit = true;
+        if (health <= 0) {
+            isAlive = false;
+        }
     }
 
 };

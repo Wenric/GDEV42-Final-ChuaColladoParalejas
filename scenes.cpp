@@ -7,7 +7,6 @@
 #include "PlayerStateMachine.cpp"
 #include "EnemyStateMachine.cpp"
 
-
 class GameScene : public Scene {
 
     //variables for tile functionality
@@ -92,6 +91,11 @@ public:
         tilemap = LoadTexture(image_name.c_str());
         tile_size = static_cast<int>(tile_list[0].loc_sprite_sheet.width);
 
+        InitBulletArray();
+        InitBoomerangArray();
+        for (int i = 0; i < boomerang.Pasc_list.size(); i++) {
+            std::cout << boomerang.Pasc_list[i] << std::endl;    
+        }
         enemy.PassPlayerInfo(player);
         player.PassEntityInfo(enemy);
 
@@ -102,8 +106,8 @@ public:
     void Update() override {
         std::cout << player.health << std::endl;
         float deltaTime = GetFrameTime();
-        player.Update(deltaTime);
         enemy.Update(deltaTime);
+        player.Update(deltaTime, camera_view);
         accumulator += deltaTime;
         while (accumulator >= TIMESTEP) {
             player.PhysicsUpdate(TIMESTEP);
@@ -132,6 +136,19 @@ public:
                 } 
             }
          }
+
+        for (int i = 0; i < magazine; ++i) {
+            if (!ammo[i]->exists) {
+                DrawCircle(ammo[i]->position.x, ammo[i]->position.y, ammo[i]->radius, ammo[i]->color);
+            }
+        }
+
+        for (int i = 0; i < boomer_pack; ++i) {
+            if (!throws[i]->exists) {
+                DrawCircle(throws[i]->position.x, throws[i]->position.y, throws[i]->radius, throws[i]->color);
+            }
+        }
+        boomerang.Draw();
         player.Draw();
         enemy.Draw();
         EndMode2D();

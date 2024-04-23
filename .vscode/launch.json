@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "externalConsole": true,
+      "cwd": "c:/Users/ASUS/Documents/My Stuff/College/Year 3/Sem 2/GDEV 42/GDEV_Finals/GDEV42-Final-ChuaColladoParalejas",
+      "program": "c:/Users/ASUS/Documents/My Stuff/College/Year 3/Sem 2/GDEV 42/GDEV_Finals/GDEV42-Final-ChuaColladoParalejas/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}

@@ -5,10 +5,15 @@
 #include <sstream>
 #include <vector>
 #include "Entity.hpp"
+#include "PlayerStateMachine.cpp"
+
 
 class GameScene : public Scene {
 
     //variables for tile functionality
+
+    float accumulator = 0.0f, TIMESTEP = 1.0f / FPS;
+
     std::string line;
     std::string image_name;
     std::vector<Rectangle> sprite_rects;
@@ -19,6 +24,12 @@ class GameScene : public Scene {
     std::vector<std::vector<int>> grid;
     float tile_size;
     std::vector<bool> tile_collision;
+
+    Vector2 player_pos = {20, -80};
+    float player_rad = 32.0f;
+    float player_speed = 100.0f;
+
+    Player player{player_pos, player_rad, player_speed};
 
     //variables for camera
     Camera2D camera_view = { 0 };
@@ -83,6 +94,24 @@ public:
     void End() override {}
 
     void Update() override {
+        
+        float deltaTime = GetFrameTime();
+        player.Update(deltaTime);
+        accumulator += deltaTime;
+        while (accumulator >= TIMESTEP) {
+            // Calculate next position, next velocity, etc.
+            player.PhysicsUpdate(TIMESTEP);
+            accumulator -= TIMESTEP;
+        }
+        
+        for (int i = 0; i < y_dim; i++) {
+            for (int j = 0; j < x_dim; j++) {
+                if (tile_list[grid[i][j]].has_collision == true) {
+                    player.CheckTileCollision({ j * tile_size, i * tile_size, tile_size, tile_size });
+                    
+                }
+            }
+        }
     }
 
     void Draw() override {
@@ -94,6 +123,7 @@ public:
                 } 
             }
          }
+        player.Draw();
         EndMode2D();
     }
 };

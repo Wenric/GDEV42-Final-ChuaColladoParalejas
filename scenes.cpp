@@ -123,6 +123,19 @@ public:
                 }
             }
         }
+        for (int i = 0; i < boomer_pack; ++i) {
+            if(throws[i]->exists) {
+                player.CheckProjectileCollision(*throws[i]);
+            }
+        }
+            for (int i = 0; i < magazine; ++i) {
+                if(ammo[i]->exists) {
+                    player.CheckProjectileCollision(*ammo[i]);
+                }
+            }
+
+        std::cout << enemy.health << std::endl;
+
 
         camera_view.target = player.position;
     }
@@ -138,13 +151,13 @@ public:
          }
 
         for (int i = 0; i < magazine; ++i) {
-            if (!ammo[i]->exists) {
+            if (ammo[i]->exists) {
                 DrawCircle(ammo[i]->position.x, ammo[i]->position.y, ammo[i]->radius, ammo[i]->color);
             }
         }
 
         for (int i = 0; i < boomer_pack; ++i) {
-            if (!throws[i]->exists) {
+            if (throws[i]->exists) {
                 DrawCircle(throws[i]->position.x, throws[i]->position.y, throws[i]->radius, throws[i]->color);
             }
         }

@@ -79,6 +79,7 @@ Enemy::Enemy(Vector2 pos, float rad, float spd) {
     speed = spd;
     fall_timer = 0;
     color = WHITE;
+    health = 10;
     isFalling = true;
     velocity = Vector2Zero();
     direction = rand() % 2 == 0 ? 1.0f : -1.0f;

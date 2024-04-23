@@ -73,6 +73,15 @@ public:
           
     }
 
+    void CheckProjectileCollision(Projectile& projectile) {
+        for (auto& enemy : entities ) {
+            if(CheckCollisionCircles(enemy->position, enemy->radius, projectile.position, projectile.radius)) {
+                enemy->health -= projectile.damage;
+                projectile.exists = false;
+            }
+        }
+    }
+
     Player(Vector2 pos, float rad, float spd);
     void Update(float delta_time);
     void PhysicsUpdate(float TIMESTEP);
@@ -81,6 +90,7 @@ public:
     void Draw();
     void Jump();
     void SetState(PlayerState* new_state);
+    void BoomerShoot(float delta_time);
 
 private:
     PlayerState* current_state;

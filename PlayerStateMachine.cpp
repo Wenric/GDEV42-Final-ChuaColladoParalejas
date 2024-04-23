@@ -7,13 +7,14 @@ int magazine = 20; //amount of bullets
 int boomer_pack = 1;
 Bullet* ammo[20];
 Boomerang* throws[1];
-
+Vector2 direction; 
+Vector2 dest;
 
 Bezier boomerang{2, 3, 5, 100, 10, BLUE}; //instantiate Bezier Curve
 
 void InitBulletArray() {
     for (int i = 0; i < magazine; ++i) {
-        ammo[i] = new Bullet(RED, 5.0f, {0, 0}, {0, 0}, 500, true, true);
+        ammo[i] = new Bullet(1, RED, 5.0f, {0, 0}, {0, 0}, 500, true, false);
     }
 }
 
@@ -26,7 +27,7 @@ void Player::Jump() {
 
 void InitBoomerangArray() {
     for (int i = 0; i < boomer_pack; ++i) {
-        throws[i] = new Boomerang(GREEN, 20.0f, {0, 0}, {0, 0}, 700, true, true);
+        throws[i] = new Boomerang(3, GREEN, 20.0f, {0, 0}, {0, 0}, 700, true, false);
     }
 }
 
@@ -109,8 +110,25 @@ Player::Player(Vector2 pos, float rad, float spd) {
     SetState(&idle);
 }
 
-Vector2 direction; 
-Vector2 dest;
+void Player::BoomerShoot(float delta_time) {
+    for (int i = 0; i < boomer_pack; ++i) {
+        if (throws[i]->exists) {
+            for (float e = 0; e < boomerang.step_input + 1; e++) {
+                if(CheckCollisionPointCircle(boomerang.Step_coords[e], throws[i]->position, throws[i]->collision_rad)) {
+                    dest = boomerang.Step_coords[e + 1];
+                    dest = Vector2Scale(Vector2Normalize(Vector2Subtract(dest, throws[i]->position)), throws[i]->speed * delta_time);    
+                    }
+            }
+            throws[i]->position = Vector2Add(throws[i]->position, dest);
+
+            if (CheckCollisionCircles(position, radius, throws[i]->position, throws[i]->collision_rad)) {
+                throws[i]->exists = false;
+            }        
+        }
+    }
+}
+
+
 void PlayerIdle::Update(Player& player, float delta_time) {
     
     if (IsKeyDown(KEY_A) || IsKeyDown(KEY_D)) {
@@ -126,10 +144,10 @@ void PlayerIdle::Update(Player& player, float delta_time) {
         direction = Vector2Normalize(Vector2Subtract(GetMousePosition(), GetWorldToScreen2D(player.position, *player.camera)));
         
         for (int i = 0; i < magazine; ++i) {
-            if (ammo[i]->exists) {
+            if (!ammo[i]->exists) {
                 // Set bullet properties
                 ammo[i]->position = player.position;
-                ammo[i]->exists = false;
+                ammo[i]->exists = true;
                 direction = Vector2Scale(direction, ammo[i]->speed);
                 ammo[i]->direction = direction;
                 // bullet = ammo[i];
@@ -139,12 +157,12 @@ void PlayerIdle::Update(Player& player, float delta_time) {
     }
 
     for (int i = 0; i < magazine; ++i) {
-            if (!ammo[i]->exists) {
+            if (ammo[i]->exists) {
                 ammo[i]->position = Vector2Add(ammo[i]->position, Vector2Scale(ammo[i]->direction, delta_time));
             }
         }
     
-    if(IsKeyPressed(KEY_LEFT_SHIFT)) {
+    if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
         if (!boomerang.direction) {
             boomerang.Controller[0].Coords = Vector2Add(player.position, {40, 20});
             boomerang.Controller[1].Coords = Vector2Add(player.position, {1000, 0});
@@ -157,32 +175,16 @@ void PlayerIdle::Update(Player& player, float delta_time) {
             boomerang.Controller[2].Coords = player.position;
         }
         for (int i = 0; i < boomer_pack; ++i) {
-            if (throws[i]->exists) {
+            if (!throws[i]->exists) {
                 // Set bullet properties
                 throws[i]->position = boomerang.Controller[0].Coords;
-                throws[i]->exists = false;
+                throws[i]->exists = true;
                 break; // Exit the loop after activating one bullet
             }
         }
     }
 
-    for (int i = 0; i < boomer_pack; ++i) {
-            if (!throws[i]->exists) {
-                for (float e = 0; e < boomerang.step_input + 1; e++) {
-                    if(CheckCollisionPointCircle(boomerang.Step_coords[e], throws[i]->position, throws[i]->collision_rad)) {
-                        dest = boomerang.Step_coords[e + 1];
-                        dest = Vector2Scale(Vector2Normalize(Vector2Subtract(dest, throws[i]->position)), throws[i]->speed * delta_time);    
-                        }
-                }
-                std::cout << dest.x << std::endl;
-                std::cout << dest.y << std::endl;
-                throws[i]->position = Vector2Add(throws[i]->position, dest);
-
-                if (CheckCollisionCircles(player.position, player.radius, throws[i]->position, throws[i]->collision_rad)) {
-                    throws[i]->exists = true;
-                }        
-            }
-        }
+    player.BoomerShoot(delta_time);
         
 
     if(boomerang.Controller.size() == boomerang.control_input) {
@@ -212,7 +214,30 @@ void PlayerMoving::Update(Player& player, float delta_time) {
         player.Jump();
     }
 
-    if(IsKeyPressed(KEY_LEFT_SHIFT)) {
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        direction = Vector2Zero();
+        direction = Vector2Normalize(Vector2Subtract(GetMousePosition(), GetWorldToScreen2D(player.position, *player.camera)));
+        
+        for (int i = 0; i < magazine; ++i) {
+            if (!ammo[i]->exists) {
+                // Set bullet properties
+                ammo[i]->position = player.position;
+                ammo[i]->exists = true;
+                direction = Vector2Scale(direction, ammo[i]->speed);
+                ammo[i]->direction = direction;
+                // bullet = ammo[i];
+                break; // Exit the loop after activating one bullet
+            }
+        }
+    }
+
+    for (int i = 0; i < magazine; ++i) {
+            if (ammo[i]->exists) {
+                ammo[i]->position = Vector2Add(ammo[i]->position, Vector2Scale(ammo[i]->direction, delta_time));
+            }
+        }
+
+    if(IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
         if (!boomerang.direction) {
             boomerang.Controller[0].Coords = Vector2Add(player.position, {40, 20});
             boomerang.Controller[1].Coords = Vector2Add(player.position, {1000, 0});
@@ -224,13 +249,24 @@ void PlayerMoving::Update(Player& player, float delta_time) {
             boomerang.Controller[1].Coords = Vector2Add(player.position, {-1000, 0});
             boomerang.Controller[2].Coords = player.position;
         }
+        for (int i = 0; i < boomer_pack; ++i) {
+            if (!throws[i]->exists) {
+                // Set bullet properties
+                throws[i]->position = boomerang.Controller[0].Coords;
+                throws[i]->exists = true;
+                break; // Exit the loop after activating one bullet
+            }
+        }
 
     }
+    player.BoomerShoot(delta_time);
 
     if (boomerang.Controller.size() == boomerang.control_input) {
         boomerang.Update();
         boomerang.Controller[boomerang.Controller.size()-1].Coords = player.position;
-        
+
+    
+
     }
     if (IsKeyPressed(KEY_LEFT_SHIFT) && player.dash_cooldown <= 0) {
         player.SetState(&player.dashing);

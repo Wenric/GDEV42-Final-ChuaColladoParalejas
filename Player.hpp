@@ -30,15 +30,24 @@ public:
     // void PhysicsUpdate(Player& player, float TIMESTEP);
 };
 
+class PlayerDashing : public PlayerState {
+public:
+    void Enter(Player& player);
+    void Update(Player& player, float delta_time);
+};
 
 class Player : public Entity {
 public:
     Color color;
     bool isFalling;
     float fall_timer;
+    float dash_timer;
+    float dash_cooldown;
+    float direction;
     PlayerIdle idle;
     PlayerMoving moving;
-    std::vector<Entity> entities;   
+    PlayerDashing dashing;
+    std::vector<Entity*> entities;   
 
     void CheckTileCollision(const Rectangle tile) {
         Vector2 closest_point;
@@ -47,7 +56,6 @@ public:
         float distance = sqrt((position.x - closest_point.x) * (position.x - closest_point.x) + (position.y - closest_point.y) * (position.y - closest_point.y));
 
         if (distance < radius) {
-            isFalling = false;
             velocity.y = 0;
             fall_timer = 0;
             Vector2 col_norm;
@@ -57,18 +65,15 @@ public:
             position = Vector2Add(position, movement);            
             
         }
-
-        else {
-            isFalling = true;
-        }
-        
-        
+          
     }
 
     Player(Vector2 pos, float rad, float spd);
     void Update(float delta_time);
     void PhysicsUpdate(float TIMESTEP);
+    void PassEntityInfo(Entity& enemy);
     void Draw();
+    void Jump();
     void SetState(PlayerState* new_state);
 
 private:

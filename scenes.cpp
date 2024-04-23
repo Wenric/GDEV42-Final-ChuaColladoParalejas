@@ -4,8 +4,8 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include "Entity.hpp"
 #include "PlayerStateMachine.cpp"
+#include "EnemyStateMachine.cpp"
 
 
 class GameScene : public Scene {
@@ -25,16 +25,20 @@ class GameScene : public Scene {
     float tile_size;
     std::vector<bool> tile_collision;
 
-    Vector2 player_pos = {20, -80};
-    float player_rad = 32.0f;
-    float player_speed = 100.0f;
-
-    Player player{player_pos, player_rad, player_speed};
-
     //variables for camera
     Camera2D camera_view = { 0 };
 
     //variables for entities
+
+    //player instantiation
+    Vector2 player_pos = {1200, -32};
+    float player_rad = 32.0f;
+    float player_speed = 100.0f;
+    Player player{player_pos, player_rad, player_speed};
+
+    //enemy instantiation
+    Enemy enemy{ {400,-64}, 32, 100.0f};
+
 
 public:
     void Begin() override {
@@ -68,7 +72,6 @@ public:
                 current >> x >> y >> width >> height >> has_collision;
                 tile_collision.push_back(has_collision);
                 sprite_rects.push_back({  (float)x, (float)y, (float)width, (float)height });
-                std::cout << "pog" << std::endl;
             } else if (checker == "ROW") {
                 std::vector<int> row;
                 int num;
@@ -89,18 +92,22 @@ public:
         tilemap = LoadTexture(image_name.c_str());
         tile_size = static_cast<int>(tile_list[0].loc_sprite_sheet.width);
 
+        enemy.PassPlayerInfo(player);
+        player.PassEntityInfo(enemy);
+
     }   
 
     void End() override {}
 
     void Update() override {
-        
+        std::cout << player.health << std::endl;
         float deltaTime = GetFrameTime();
         player.Update(deltaTime);
+        enemy.Update(deltaTime);
         accumulator += deltaTime;
         while (accumulator >= TIMESTEP) {
-            // Calculate next position, next velocity, etc.
             player.PhysicsUpdate(TIMESTEP);
+            enemy.PhysicsUpdate(TIMESTEP);
             accumulator -= TIMESTEP;
         }
         
@@ -108,10 +115,12 @@ public:
             for (int j = 0; j < x_dim; j++) {
                 if (tile_list[grid[i][j]].has_collision == true) {
                     player.CheckTileCollision({ j * tile_size, i * tile_size, tile_size, tile_size });
-                    
+                    enemy.CheckTileCollision({ j * tile_size, i * tile_size, tile_size, tile_size });
                 }
             }
         }
+
+        camera_view.target = player.position;
     }
 
     void Draw() override {
@@ -124,6 +133,7 @@ public:
             }
          }
         player.Draw();
+        enemy.Draw();
         EndMode2D();
     }
 };

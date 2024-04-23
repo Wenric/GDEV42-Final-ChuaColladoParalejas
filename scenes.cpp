@@ -7,7 +7,6 @@
 #include "Entity.hpp"
 #include "PlayerStateMachine.cpp"
 
-
 class GameScene : public Scene {
 
     //variables for tile functionality
@@ -68,7 +67,6 @@ public:
                 current >> x >> y >> width >> height >> has_collision;
                 tile_collision.push_back(has_collision);
                 sprite_rects.push_back({  (float)x, (float)y, (float)width, (float)height });
-                std::cout << "pog" << std::endl;
             } else if (checker == "ROW") {
                 std::vector<int> row;
                 int num;
@@ -89,6 +87,11 @@ public:
         tilemap = LoadTexture(image_name.c_str());
         tile_size = static_cast<int>(tile_list[0].loc_sprite_sheet.width);
 
+        InitBulletArray();
+        InitBoomerangArray();
+        for (int i = 0; i < boomerang.Pasc_list.size(); i++) {
+            std::cout << boomerang.Pasc_list[i] << std::endl;    
+        }
     }   
 
     void End() override {}
@@ -96,7 +99,7 @@ public:
     void Update() override {
         
         float deltaTime = GetFrameTime();
-        player.Update(deltaTime);
+        player.Update(deltaTime, camera_view);
         accumulator += deltaTime;
         while (accumulator >= TIMESTEP) {
             // Calculate next position, next velocity, etc.
@@ -123,6 +126,19 @@ public:
                 } 
             }
          }
+
+        for (int i = 0; i < magazine; ++i) {
+            if (!ammo[i]->exists) {
+                DrawCircle(ammo[i]->position.x, ammo[i]->position.y, ammo[i]->radius, ammo[i]->color);
+            }
+        }
+
+        for (int i = 0; i < boomer_pack; ++i) {
+            if (!throws[i]->exists) {
+                DrawCircle(throws[i]->position.x, throws[i]->position.y, throws[i]->radius, throws[i]->color);
+            }
+        }
+        boomerang.Draw();
         player.Draw();
         EndMode2D();
     }

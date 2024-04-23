@@ -1,6 +1,5 @@
 #include <raylib.h>
 #include <C:\raylib\raylib\src\raymath.h>
-#include "Entity.hpp"
 #include "Player.hpp"
 #include <iostream>
 
@@ -15,6 +14,8 @@ Bezier boomerang{2, 3, 5, 100, 10, BLUE}; //instantiate Bezier Curve
 void InitBulletArray() {
     for (int i = 0; i < magazine; ++i) {
         ammo[i] = new Bullet(RED, 5.0f, {0, 0}, {0, 0}, 500, true, true);
+    }
+}
 
 void Player::Jump() {
     if (IsKeyPressed(KEY_SPACE) && !isFalling) {
@@ -28,22 +29,6 @@ void InitBoomerangArray() {
         throws[i] = new Boomerang(GREEN, 20.0f, {0, 0}, {0, 0}, 700, true, true);
     }
 }
-
-// Vector2 bullet_pos = {20, -80};
-// float bullet_rad = 32.0f;
-// Color bullet_col = RED;
-
-// // Bullet bullet(bullet_col, bullet_rad, bullet_pos);
-
-void Jump(Player& player) {
-
-    player.velocity.y = 0;
-    player.velocity.y -= 15;
-    player.isFalling = true;
-    player.fall_timer = 0.01;
-    
-}
-
 
 void Player::PhysicsUpdate(float TIMESTEP) {
     //gravity
@@ -62,8 +47,6 @@ void Player::PhysicsUpdate(float TIMESTEP) {
 void Player::Update(float delta_time) {
     //update cooldowns
     dash_cooldown -= delta_time;
-
-    std::cout << isHit << std::endl;
    
     //iframe 
     if (isHit) {
@@ -88,6 +71,10 @@ void Player::SetState(PlayerState* new_state) {
 
 void Player::PassEntityInfo(Entity& enemy) {
     entities.push_back(&enemy);
+}
+
+void Player::PassCameraInfo(Camera2D& cam) {
+    camera = &cam;
 }
 
 
@@ -124,21 +111,19 @@ Player::Player(Vector2 pos, float rad, float spd) {
 
 Vector2 direction; 
 Vector2 dest;
-void PlayerIdle::Update(Player& player, float delta_time, Camera2D camera) {
+void PlayerIdle::Update(Player& player, float delta_time) {
     
     if (IsKeyDown(KEY_A) || IsKeyDown(KEY_D)) {
         player.SetState(&player.moving);
     } 
-    if (IsKeyPressed(KEY_SPACE)) {
-        Jump(player);
-    }
+    
     if (IsKeyPressed(KEY_SPACE) && !player.isFalling) {
         player.Jump(); 
     }
 
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         direction = Vector2Zero();
-        direction = Vector2Normalize(Vector2Subtract(GetMousePosition(), GetWorldToScreen2D(player.position, camera)));
+        direction = Vector2Normalize(Vector2Subtract(GetMousePosition(), GetWorldToScreen2D(player.position, *player.camera)));
         
         for (int i = 0; i < magazine; ++i) {
             if (ammo[i]->exists) {
@@ -199,7 +184,7 @@ void PlayerIdle::Update(Player& player, float delta_time, Camera2D camera) {
     }
 }
 
-void PlayerMoving::Update(Player& player, float delta_time, Camera2D camera) {
+void PlayerMoving::Update(Player& player, float delta_time) {
     player.velocity.x = 0;
     if (IsKeyDown(KEY_A)) {
         player.velocity.x = player.speed;
@@ -208,9 +193,6 @@ void PlayerMoving::Update(Player& player, float delta_time, Camera2D camera) {
         player.velocity.x = player.speed;
         player.direction = 1;
     } else {
-        player.SetState(&player.idle);
-    }
-    else if(player.velocity.x == 0 && player.velocity.y == 0) {
         player.SetState(&player.idle);
     }
 

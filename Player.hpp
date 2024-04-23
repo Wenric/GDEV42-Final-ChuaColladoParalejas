@@ -12,21 +12,21 @@ class PlayerState {
 public:
     virtual ~PlayerState() {}
     virtual void Enter(Player& player) = 0;
-    virtual void Update(Player& player, float delta_time, Camera2D camera) = 0;
+    virtual void Update(Player& player, float delta_time) = 0;
     // virtual void PhysicsUpdate(Player& player, float TIMESTEP) = 0;
 };
 
 class PlayerIdle : public PlayerState {
 public:
     void Enter(Player& player);
-    void Update(Player& player, float delta_time, Camera2D camera);
+    void Update(Player& player, float delta_time);
     // void PhysicsUpdate(Player& player, float TIMESTEP);
 };
 
 class PlayerMoving : public PlayerState {
 public:
     void Enter(Player& player);
-    void Update(Player& player, float delta_time, Camera2D camera);
+    void Update(Player& player, float delta_time);
     // void PhysicsUpdate(Player& player, float TIMESTEP);
 };
 
@@ -47,10 +47,14 @@ public:
     PlayerIdle idle;
     PlayerMoving moving;
     PlayerDashing dashing;
+    Camera2D* camera;
     std::vector<Entity*> entities;   
 
     void CheckTileCollision(const Rectangle tile) {
         Vector2 closest_point;
+        closest_point.x = Clamp(position.x, tile.x, tile.x + tile.width);
+        closest_point.y = Clamp(position.y, tile.y, tile.y + tile.height);
+        float distance = sqrt((position.x - closest_point.x) * (position.x - closest_point.x) + (position.y - closest_point.y) * (position.y - closest_point.y));
 
         if (distance < radius) {
             velocity.y = 0;
@@ -70,8 +74,9 @@ public:
     }
 
     Player(Vector2 pos, float rad, float spd);
-    void Update(float delta_time, Camera2D camera);
+    void Update(float delta_time);
     void PhysicsUpdate(float TIMESTEP);
+    void PassCameraInfo(Camera2D& cam);
     void PassEntityInfo(Entity& enemy);
     void Draw();
     void Jump();

@@ -93,8 +93,7 @@ public:
 
         InitBulletArray();
         InitBoomerangArray();
-        for (int i = 0; i < boomerang.Pasc_list.size(); i++) {
-            std::cout << boomerang.Pasc_list[i] << std::endl;    
+        for (int i = 0; i < boomerang.Pasc_list.size(); i++) {   
         }
         enemy.PassPlayerInfo(player);
         player.PassEntityInfo(enemy);
@@ -104,10 +103,10 @@ public:
     void End() override {}
 
     void Update() override {
-        std::cout << player.health << std::endl;
+
         float deltaTime = GetFrameTime();
         enemy.Update(deltaTime);
-        player.Update(deltaTime, camera_view);
+        player.Update(deltaTime);
         accumulator += deltaTime;
         while (accumulator >= TIMESTEP) {
             player.PhysicsUpdate(TIMESTEP);

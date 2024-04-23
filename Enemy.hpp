@@ -65,7 +65,6 @@ public:
     Enemy(Vector2 pos, float rad, float spd);
     void PhysicsUpdate(float TIMESTEP);
     void Update(float delta_time);
-   
     void Draw();
     void SetState(EnemyState* new_state);
     void PassPlayerInfo(Entity& player);

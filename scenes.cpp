@@ -137,9 +137,11 @@ class GameScene : public Scene {
 
     //player instantiation
     Vector2 player_pos = {1200, -32};
-    float player_rad = 32.0f;
+    float player_rad = 20.0f;
     float player_speed = 100.0f;
-    Player player{player_pos, player_rad, player_speed};
+    const char *file_name = "resources/chara.png";
+    Texture2D character = LoadTexture(file_name); 
+    Player player = {player_pos, player_rad, player_speed, character};
 
     //enemy instantiation
     Enemy enemy{ {400,-64}, 32, 100.0f};
@@ -229,7 +231,29 @@ public:
                 }
             }
         }
+        if (abs(player.velocity.x) != 0.0f)
+        {
+            // Walking animation
+            ++player.frameDelayCounter;
+            if (player.frameDelayCounter > player.frameDelay)
+            {
+                player.frameDelayCounter = 0;
+                ++player.frameIndex;
+                player.frameIndex %= player.charaNumFrames;
+                player.walkFrameRec.x = (float)64 * player.frameIndex;
+                player.frameRec = player.walkFrameRec;
+                
+            }
+        }
+        else
+        {
+            // display first frame of walking animation
+            player.frameIndex = 0; // reset frame index to 0
+            player.walkFrameRec.x = 0.0f; // set it to first frame
+            player.frameRec = player.walkFrameRec;
+        }
 
+    
         camera_view.target = player.position;
     }
 
@@ -254,6 +278,7 @@ public:
                 DrawCircle(throws[i]->position.x, throws[i]->position.y, throws[i]->radius, throws[i]->color);
             }
         }
+
         player.Draw();
         enemy.Draw();
         EndMode2D();

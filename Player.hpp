@@ -48,7 +48,8 @@ public:
     PlayerMoving moving;
     PlayerDashing dashing;
     Camera2D* camera;
-    std::vector<Entity*> entities;   
+    std::vector<Entity*> entities;
+    Texture2D texture;   
 
     void CheckTileCollision(const Rectangle tile) {
         Vector2 closest_point;
@@ -73,7 +74,7 @@ public:
           
     }
 
-    Player(Vector2 pos, float rad, float spd);
+    Player(Vector2 pos, float rad, float spd, Texture2D tex);
     void Update(float delta_time);
     void PhysicsUpdate(float TIMESTEP);
     void PassCameraInfo(Camera2D& cam);

@@ -61,7 +61,10 @@ void Player::Update(float delta_time) {
 
 
 void Player::Draw() {
-    DrawCircle(position.x, position.y, radius, color);
+    DrawCircleV(position,radius, WHITE);
+    DrawTexturePro(texture, frameRec,
+            (Rectangle){position.x - 32, position.y - 32, 64, 64},
+            (Vector2){0, 0}, 0, WHITE);
 }
 
 void Player::SetState(PlayerState* new_state) {
@@ -93,7 +96,7 @@ void PlayerDashing::Enter(Player& player) {
 }
 
 
-Player::Player(Vector2 pos, float rad, float spd) {
+Player::Player(Vector2 pos, float rad, float spd, Texture2D tex) {
     position = pos;
     radius = rad;
     speed = spd;
@@ -106,7 +109,18 @@ Player::Player(Vector2 pos, float rad, float spd) {
     isAlive = true;
     isHit = false;
     velocity = Vector2Zero();
+    texture = tex;
     SetState(&idle);
+
+    charaNumFrames = 2;
+    charaFrameWidth = 128 / charaNumFrames;
+    walkFrameRec = { 0.0f, 0.0f, (float)64, (float)64};
+
+    frameDelay = 8;
+    frameDelayCounter = 0;
+    frameIndex = 0;
+
+    frameRec;
 }
 
 Vector2 direction; 
@@ -194,15 +208,26 @@ void PlayerIdle::Update(Player& player, float delta_time) {
 }
 
 void PlayerMoving::Update(Player& player, float delta_time) {
+    std::cout << player.direction << std::endl;
     player.velocity.x = 0;
     if (IsKeyDown(KEY_A)) {
         player.velocity.x = player.speed;
         boomerang.direction = 1;
         player.direction = -1;
+        if (player.walkFrameRec.width < 0)
+        {
+            player.walkFrameRec.width = -player.walkFrameRec.width;
+        }
+        
     } else if (IsKeyDown(KEY_D)) {
         player.velocity.x = player.speed;
         boomerang.direction = -1;
         player.direction = 1;
+        if (player.walkFrameRec.width > 0)
+        {
+            player.walkFrameRec.width = -player.walkFrameRec.width;
+        }
+        
     }
     else if(player.velocity.x == 0 && player.velocity.y == 0) {
         player.SetState(&player.idle);

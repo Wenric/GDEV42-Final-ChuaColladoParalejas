@@ -48,7 +48,19 @@ public:
     PlayerMoving moving;
     PlayerDashing dashing;
     Camera2D* camera;
-    std::vector<Entity*> entities;   
+    std::vector<Entity*> entities; 
+    Texture2D* sprite;
+
+    //animation variables
+    float frame_width = (float)(sprite->width/2);
+    float frame_height = (float)(sprite->height/2);
+    int current_frame = 0;
+    int current_line = 0;
+
+    Rectangle frame_rec = {0,0, frame_width, frame_height};
+    Vector2 position = Vector2Zero();
+    bool active = false;
+    int frames_counter = 0;
 
     void CheckTileCollision(const Rectangle tile) {
         Vector2 closest_point;
@@ -80,6 +92,26 @@ public:
                 projectile.exists = false;
             }
         }
+    }
+
+    void ComputeAnimationFrames() {
+        
+        frames_counter++;
+        if (frames_counter > 2) {
+            current_frame++;
+            if(current_frame >= 2){
+                current_frame = 0;
+                current_line++;
+                if (current_line>2) {
+                    current_line=0;
+                }
+            }
+
+        }
+        
+        frame_rec.x = frame_width*current_frame;
+        frame_rec.y = frame_height * current_line;
+        
     }
 
     Player(Vector2 pos, float rad, float spd);

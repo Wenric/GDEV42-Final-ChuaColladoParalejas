@@ -63,6 +63,7 @@ void Player::Update(float delta_time) {
 
 void Player::Draw() {
     DrawCircle(position.x, position.y, radius, color);
+    DrawTextureRec(*sprite, frame_rec, position, WHITE);
 }
 
 void Player::SetState(PlayerState* new_state) {

@@ -129,6 +129,7 @@ class GameScene : public Scene {
     std::vector<std::vector<int>> grid;
     float tile_size;
     std::vector<bool> tile_collision;
+    Texture2D player_sprite;
 
     //variables for camera
     Camera2D camera_view = { 0 };
@@ -195,6 +196,8 @@ public:
         }
 
         tilemap = LoadTexture(image_name.c_str());
+        player_sprite = LoadTexture("resources/chara.png");
+        player.sprite = &player_sprite;
         tile_size = static_cast<int>(tile_list[0].loc_sprite_sheet.width);
 
         InitBulletArray();

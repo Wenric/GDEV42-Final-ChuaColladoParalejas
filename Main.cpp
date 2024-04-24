@@ -12,9 +12,23 @@ int main() {
     SetTargetFPS(FPS);
 
     SceneManager scene_manager;
+    
+    TitleScene title_scene;
+    title_scene.SetSceneManager(&scene_manager);
+
     GameScene game_scene;
     game_scene.SetSceneManager(&scene_manager);
-    scene_manager.RegisterScene(&game_scene, 0);
+
+    WinScene win_scene;
+    win_scene.SetSceneManager(&scene_manager);
+
+    LoseScene lose_scene;
+    lose_scene.SetSceneManager(&scene_manager);
+    
+    scene_manager.RegisterScene(&title_scene, 0);
+    scene_manager.RegisterScene(&game_scene, 1);
+    scene_manager.RegisterScene(&win_scene, 2);
+    scene_manager.RegisterScene(&lose_scene, 3);
 
     scene_manager.SwitchScene(0);
 

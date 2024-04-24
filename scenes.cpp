@@ -1,11 +1,117 @@
 #include <raylib.h>
 #include "scene_manager.hpp"
+#include "ui_library.cpp"
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include "PlayerStateMachine.cpp"
 #include "EnemyStateMachine.cpp"
+
+UiLibrary ui_library;
+
+class TitleScene : public Scene {
+
+public:
+
+float centerX = GetScreenWidth() / 2;
+float centerY = GetScreenHeight() / 2;
+
+float buttonWidth = 350;
+float buttonHeight = 60; 
+float buttonX = centerX - (buttonWidth / 2);
+float buttonY = centerY - (buttonHeight / 2);
+
+Rectangle playButton = { buttonX, buttonY, buttonWidth, buttonHeight };
+Rectangle quitButton = { buttonX, buttonY + 90, buttonWidth, buttonHeight };
+
+Texture2D healthTexture;
+int maxHealth = 5;
+int playerHealth = maxHealth;
+int crossScale = 3.0f;
+
+float cooldownTimer = 3.0f;
+float cooldownDuration = 3.0f;
+
+// static Texture2D titleTexture;
+
+    void Begin() override {
+        // Load the title image
+        // titleTexture = LoadTexture("resources/title.png");
+        healthTexture = LoadTexture("resources/health.png");
+    }
+
+    void End() override {
+        // UnloadTexture(titleTexture);
+        UnloadTexture(healthTexture);
+    }
+
+    void Update() override {
+        // REMOVE THIS LATER!!!!!!!!!!!!!!!!!!!!!!!
+        if (IsKeyPressed(KEY_SPACE)) {
+            // reduce health
+            playerHealth--;
+
+            // dont go below 0 pls
+            if (playerHealth < 0) {
+                playerHealth = 0;
+            }
+        }
+
+        // Check for space bar press to reset cooldown timer
+        if (IsKeyPressed(KEY_Z) && cooldownTimer <= 0.0f)
+        {
+            cooldownTimer = cooldownDuration;
+        }
+
+        // update cooldown timer
+        cooldownTimer -= GetFrameTime();
+        if (cooldownTimer < 0.0f)
+            cooldownTimer = 0.0f;
+    }
+
+    void Draw() override {
+        DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), LIGHTGRAY);
+
+        //DrawTexturePro(titleTexture, (Rectangle){ 0, 0, (float)titleTexture.width, (float)titleTexture.height },
+        //(Rectangle){ (float)(GetScreenWidth() / 2 - titleTexture.width / 4), 100,
+        //(float)(titleTexture.width / 2), (float)(titleTexture.height / 2) }, (Vector2){ 0, 0 }, 0, WHITE);
+
+        // REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        DrawHealth();
+
+        ui_library.ProgressBar("Cooldown Thing", cooldownTimer, cooldownDuration, { 13, 90, 305, 30 });
+
+        // Play game button
+        if (ui_library.Button(0, "Play", playButton))
+        {
+            if (GetSceneManager() != nullptr) {
+                GetSceneManager()->SwitchScene(1);
+            }
+        }
+
+        // Quit game button
+        if (ui_library.Button(1, "Quit", quitButton))
+        {
+            CloseWindow();
+        }
+    }
+
+    // HEALTH THING!!!!!!!!!!!!!! REMOVE LATER!!!!!!!!!!!
+    void DrawHealth() {
+        float healthPosX = 10; // initial X position for the first cross
+
+        for (int i = 0; i < maxHealth; i++) {
+            if (i < playerHealth) {
+                // draw the crosses
+                DrawTextureEx(healthTexture, { healthPosX, 10 }, 0, crossScale, WHITE);
+            }
+
+            // position of the other crosses
+            healthPosX += 65;
+        }
+    }
+};
 
 class GameScene : public Scene {
 
@@ -151,5 +257,87 @@ public:
         player.Draw();
         enemy.Draw();
         EndMode2D();
+    }
+};
+
+class WinScene : public Scene {
+
+public:
+
+float centerX = GetScreenWidth() / 2;
+float centerY = GetScreenHeight() / 2;
+
+float buttonWidth = 350;
+float buttonHeight = 60; 
+float buttonX = centerX - (buttonWidth / 2);
+float buttonY = centerY - (buttonHeight / 2);
+
+Rectangle MenuButton = { buttonX, buttonY + 75, buttonWidth, buttonHeight };
+
+    void Begin() override {
+        
+    }
+
+    void End() override {
+        
+    }
+
+    void Update() override {
+        
+    }
+
+    void Draw() override {
+        DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), LIGHTGRAY);
+
+        DrawText("You Win!", static_cast<int>(centerX - MeasureText("You Win!", 100) / 2), static_cast<int>(centerY - 90), 100, DARKGREEN);
+
+        // Main menu button
+        if (ui_library.Button(0, "Back to Main Menu", MenuButton))
+        {
+            if (GetSceneManager() != nullptr) {
+                GetSceneManager()->SwitchScene(0);
+            }
+        }
+    }
+};
+
+class LoseScene : public Scene {
+
+float centerX = GetScreenWidth() / 2;
+float centerY = GetScreenHeight() / 2;
+
+float buttonWidth = 350;
+float buttonHeight = 60; 
+float buttonX = centerX - (buttonWidth / 2);
+float buttonY = centerY - (buttonHeight / 2);
+
+Rectangle MenuButton = { buttonX, buttonY + 75, buttonWidth, buttonHeight };
+
+public:
+
+    void Begin() override {
+        
+    }
+
+    void End() override {
+        
+    }
+
+    void Update() override {
+        
+    }
+
+    void Draw() override {
+        DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), LIGHTGRAY);
+
+        DrawText("You died!", static_cast<int>(centerX - MeasureText("You died!", 100) / 2), static_cast<int>(centerY - 90), 100, MAROON);
+
+        // Main menu button
+        if (ui_library.Button(0, "Back to Main Menu", MenuButton))
+        {
+            if (GetSceneManager() != nullptr) {
+                GetSceneManager()->SwitchScene(0);
+            }
+        }
     }
 };

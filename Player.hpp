@@ -48,8 +48,10 @@ public:
     PlayerMoving moving;
     PlayerDashing dashing;
     Camera2D* camera;
-    std::vector<Entity*> entities;
-    Texture2D texture;   
+    std::vector<Entity*> entities; 
+
+    bool active = false;
+    int frames_counter = 0;
 
     void CheckTileCollision(const Rectangle tile) {
         Vector2 closest_point;
@@ -74,7 +76,16 @@ public:
           
     }
 
-    Player(Vector2 pos, float rad, float spd, Texture2D tex);
+    void CheckProjectileCollision(Projectile& projectile) {
+        for (auto& enemy : entities ) {
+            if(CheckCollisionCircles(enemy->position, enemy->radius, projectile.position, projectile.radius)) {
+                enemy->health -= projectile.damage;
+                projectile.exists = false;
+            }
+        }
+    }
+
+    Player(Vector2 pos, float rad, float spd, Texture2D* tex);
     void Update(float delta_time);
     void PhysicsUpdate(float TIMESTEP);
     void PassCameraInfo(Camera2D& cam);
@@ -82,6 +93,7 @@ public:
     void Draw();
     void Jump();
     void SetState(PlayerState* new_state);
+    void BoomerShoot(float delta_time);
 
 private:
     PlayerState* current_state;

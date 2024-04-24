@@ -17,6 +17,7 @@ public:
     Vector2 position;
     Vector2 direction;
     float speed;
+    int damage;
     bool friendly;
     bool exists;
 };
@@ -25,15 +26,18 @@ class Bullet :  public Projectile {
 public:
 
     //constructor
-    Bullet(Color col, float rad, Vector2 pos, Vector2 dir, float sped, bool friends, bool truth) : Projectile{col, rad, pos, dir, sped, friends, truth} {}
+    Bullet(int dmg, Color col, float rad, Vector2 pos, Vector2 dir, float sped, bool friends, bool truth) : Projectile{col, rad, pos, dir, sped, friends, truth} {
+        damage = dmg;
+    }
 };
 
 class Boomerang :  public Projectile {
 public:
     float collision_rad;
     //constructor
-    Boomerang(Color col, float rad, Vector2 pos, Vector2 dir, float sped, bool friends, bool truth) : Projectile{col, rad, pos, dir, sped, friends, truth} {
+    Boomerang(int dmg, Color col, float rad, Vector2 pos, Vector2 dir, float sped, bool friends, bool truth) : Projectile{col, rad, pos, dir, sped, friends, truth} {
         collision_rad = 5.0f;
+        damage = dmg;
     }
 };
 
@@ -164,23 +168,6 @@ class Bezier {
                 }
 
                 Step_coords[e] = equation;
-
-                // if (bez_placer[tang_updater] == e) 
-                //     {
-                //     // tang_equation_result = {0, 0};
-                //     rev_expo = 0;
-                //     for (int i = degree_input - 1; i >= 0; i--) 
-                //         {
-                //         // tang_equation_result = Vector2Add(tang_equation_result, Vector2Scale((Vector2Subtract(Controller[rev_expo + 1].Coords, Controller[rev_expo].Coords)), Pasc_tracker[rev_expo] * std::pow(1 - steps, i) * std::pow(steps, rev_expo) * degree_input));
-                //         rev_expo++;
-
-                //         }   
-                    // tang_equation_result = Vector2Normalize(tang_equation_result);
-                    // tang_equation_result = Vector2Scale(tang_equation_result, tang_stretcher);
-                    // perp_placer[tang_updater] = {tang_equation_result.y * -1, tang_equation_result.x};
-                    // tang_placer[tang_updater] = tang_equation_result;
-                    // tang_updater++;
-
                     }
 
                };

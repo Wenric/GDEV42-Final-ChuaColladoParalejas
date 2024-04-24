@@ -129,6 +129,7 @@ class GameScene : public Scene {
     std::vector<std::vector<int>> grid;
     float tile_size;
     std::vector<bool> tile_collision;
+    Texture2D player_sprite;
 
     //variables for camera
     Camera2D camera_view = { 0 };
@@ -197,6 +198,8 @@ public:
         }
 
         tilemap = LoadTexture(image_name.c_str());
+        player_sprite = LoadTexture("resources/chara.png");
+        player.sprite = &player_sprite;
         tile_size = static_cast<int>(tile_list[0].loc_sprite_sheet.width);
 
         InitBulletArray();
@@ -252,6 +255,19 @@ public:
             player.walkFrameRec.x = 0.0f; // set it to first frame
             player.frameRec = player.walkFrameRec;
         }
+        for (int i = 0; i < boomer_pack; ++i) {
+            if(throws[i]->exists) {
+                player.CheckProjectileCollision(*throws[i]);
+            }
+        }
+            for (int i = 0; i < magazine; ++i) {
+                if(ammo[i]->exists) {
+                    player.CheckProjectileCollision(*ammo[i]);
+                }
+            }
+
+        std::cout << enemy.health << std::endl;
+
 
     
         camera_view.target = player.position;
@@ -268,13 +284,13 @@ public:
          }
 
         for (int i = 0; i < magazine; ++i) {
-            if (!ammo[i]->exists) {
+            if (ammo[i]->exists) {
                 DrawCircle(ammo[i]->position.x, ammo[i]->position.y, ammo[i]->radius, ammo[i]->color);
             }
         }
 
         for (int i = 0; i < boomer_pack; ++i) {
-            if (!throws[i]->exists) {
+            if (throws[i]->exists) {
                 DrawCircle(throws[i]->position.x, throws[i]->position.y, throws[i]->radius, throws[i]->color);
             }
         }

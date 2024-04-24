@@ -51,6 +51,17 @@ public:
     bool isAlive;
     bool isHit;
     float iframe_time;
+    Texture2D* texture; 
+
+    unsigned charaNumFrames;
+    int charaFrameWidth;
+    Rectangle walkFrameRec;
+
+    unsigned frameDelay;
+    unsigned frameDelayCounter;
+    unsigned frameIndex;
+
+    Rectangle frameRec;
 
     void CheckTileCollision(const Rectangle tile) {
         Vector2 closest_point;

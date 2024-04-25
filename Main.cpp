@@ -19,24 +19,26 @@ int main() {
     GameScene game_scene;
     game_scene.SetSceneManager(&scene_manager);
 
-    WinScene win_scene;
-    win_scene.SetSceneManager(&scene_manager);
+    ScoreScene score_scene;
+    score_scene.SetSceneManager(&scene_manager);
 
-    LoseScene lose_scene;
-    lose_scene.SetSceneManager(&scene_manager);
+    DeathScene death_scene;
+    death_scene.SetSceneManager(&scene_manager);
     
     scene_manager.RegisterScene(&title_scene, 0);
     scene_manager.RegisterScene(&game_scene, 1);
-    scene_manager.RegisterScene(&win_scene, 2);
-    scene_manager.RegisterScene(&lose_scene, 3);
+    scene_manager.RegisterScene(&score_scene, 2);
+    scene_manager.RegisterScene(&death_scene, 3);
 
     scene_manager.SwitchScene(0);
+
+    InitAudioDevice();
 
     while(!WindowShouldClose()) {
         Scene* active_scene = scene_manager.GetActiveScene();
 
         BeginDrawing();
-        ClearBackground(BLACK);
+        ClearBackground(WHITE);
 
         if (active_scene != nullptr) {
             active_scene->Update();

@@ -18,9 +18,15 @@ void InitBulletArray() {
     }
 }
 
+void Player::PassSoundInfo(Sound& shoot, Sound& boom, Sound& hurt) {
+    shoot_sound = &shoot;
+    boomerang_sound = &boom;
+    damage_sound = &hurt;
+}
+
 void Player::Jump() {
     if (IsKeyPressed(KEY_SPACE) && !isFalling) {
-        velocity.y -= 23;
+        velocity.y -= 25;
         fall_timer = 0;
     }
 }
@@ -35,12 +41,12 @@ void Player::PhysicsUpdate(float TIMESTEP) {
     //gravity
     float down_force = (velocity.y * fall_timer) + (0.5 * 9.8 * pow(fall_timer, 2) * 7);
 
-    if (isFalling && down_force < 5) {
+    if (down_force < 5) {
         fall_timer += TIMESTEP;
     }
     position.y += down_force;
     position.x += velocity.x * TIMESTEP * direction;
-    
+
     //grounding checker
     isFalling = abs(velocity.y) != 0;
 }
@@ -58,11 +64,11 @@ void Player::Update(float delta_time) {
         }
     }
     current_state->Update(*this, delta_time);
+
 }
 
 
 void Player::Draw() {
-    DrawCircleV(position,radius, WHITE);
     DrawTexturePro(*texture, frameRec,
             (Rectangle){position.x - 32, position.y - 32, 64, 64},
             (Vector2){0, 0}, 0, WHITE);
@@ -97,13 +103,14 @@ void PlayerDashing::Enter(Player& player) {
 }
 
 
-Player::Player(Vector2 pos, float rad, float spd, Texture2D* tex) {
+Player::Player(Vector2 pos, float rad, float spd, Texture2D* tex, float rate) {
     position = pos;
     radius = rad;
     speed = spd;
     fall_timer = 0;
-    health = 20;
+    health = 5;
     isFalling = true;
+    fall_timer = 0.0f;
     color = WHITE;
     dash_cooldown = 0;
     iframe_time = 0.5f;
@@ -111,6 +118,7 @@ Player::Player(Vector2 pos, float rad, float spd, Texture2D* tex) {
     isHit = false;
     velocity = Vector2Zero();
     texture = tex;
+    fireRate = rate;
     SetState(&idle);
 
     charaNumFrames = 2;
@@ -148,12 +156,13 @@ void PlayerIdle::Update(Player& player, float delta_time) {
     if (IsKeyDown(KEY_A) || IsKeyDown(KEY_D)) {
         player.SetState(&player.moving);
     } 
-    
     if (IsKeyPressed(KEY_SPACE) && !player.isFalling) {
         player.Jump(); 
     }
 
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        PlaySound(*player.shoot_sound);
+        player.fireRate = 2;
         direction = Vector2Zero();
         direction = Vector2Normalize(Vector2Subtract(GetMousePosition(), GetWorldToScreen2D(player.position, *player.camera)));
         
@@ -170,20 +179,31 @@ void PlayerIdle::Update(Player& player, float delta_time) {
         }
     }
 
+    // update cooldown timer
+    player.fireRate -= delta_time;
+    if (player.fireRate < 0.0f)
+        player.fireRate = 0.0f;
+
     for (int i = 0; i < magazine; ++i) {
             if (ammo[i]->exists) {
                 ammo[i]->position = Vector2Add(ammo[i]->position, Vector2Scale(ammo[i]->direction, delta_time));
             }
+
+            if (!CheckCollisionCircleRec(ammo[i]->position, ammo[i]->radius, {0, -854, 2700, 1050})) {
+                ammo[i]->exists = false;
+            }
         }
     
     if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
-        if (!boomerang.direction) {
+        if (!player.direction) {
+            PlaySound(*player.boomerang_sound);
             boomerang.Controller[0].Coords = Vector2Add(player.position, {40, 20});
             boomerang.Controller[1].Coords = Vector2Add(player.position, {1000, 0});
             boomerang.Controller[2].Coords = player.position;
 
         }
         else {
+            PlaySound(*player.boomerang_sound);
             boomerang.Controller[0].Coords = Vector2Add(player.position, {-40, 20});
             boomerang.Controller[1].Coords = Vector2Add(player.position, {-1000, 0});
             boomerang.Controller[2].Coords = player.position;
@@ -210,11 +230,9 @@ void PlayerIdle::Update(Player& player, float delta_time) {
 }
 
 void PlayerMoving::Update(Player& player, float delta_time) {
-    std::cout << player.direction << std::endl;
     player.velocity.x = 0;
     if (IsKeyDown(KEY_A)) {
         player.velocity.x = player.speed;
-        boomerang.direction = 1;
         player.direction = -1;
         if (player.walkFrameRec.width < 0)
         {
@@ -223,7 +241,6 @@ void PlayerMoving::Update(Player& player, float delta_time) {
         
     } else if (IsKeyDown(KEY_D)) {
         player.velocity.x = player.speed;
-        boomerang.direction = -1;
         player.direction = 1;
         if (player.walkFrameRec.width > 0)
         {
@@ -240,6 +257,8 @@ void PlayerMoving::Update(Player& player, float delta_time) {
     }
 
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        player.fireRate = 2;
+        PlaySound(*player.shoot_sound);
         direction = Vector2Zero();
         direction = Vector2Normalize(Vector2Subtract(GetMousePosition(), GetWorldToScreen2D(player.position, *player.camera)));
         
@@ -256,20 +275,31 @@ void PlayerMoving::Update(Player& player, float delta_time) {
         }
     }
 
+    // update cooldown timer
+    player.fireRate -= delta_time;
+    if (player.fireRate < 0.0f)
+        player.fireRate = 0.0f;
+
     for (int i = 0; i < magazine; ++i) {
             if (ammo[i]->exists) {
                 ammo[i]->position = Vector2Add(ammo[i]->position, Vector2Scale(ammo[i]->direction, delta_time));
             }
+
+            if (!CheckCollisionCircleRec(ammo[i]->position, ammo[i]->radius, {0, -854, 2700, 1050})) {
+                ammo[i]->exists = false;
+            }
         }
 
     if(IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
-        if (!boomerang.direction) {
+        if (player.direction == 1) {
+            PlaySound(*player.boomerang_sound);
             boomerang.Controller[0].Coords = Vector2Add(player.position, {40, 20});
             boomerang.Controller[1].Coords = Vector2Add(player.position, {1000, 0});
             boomerang.Controller[2].Coords = player.position;
 
         }
         else {
+            PlaySound(*player.boomerang_sound);
             boomerang.Controller[0].Coords = Vector2Add(player.position, {-40, 20});
             boomerang.Controller[1].Coords = Vector2Add(player.position, {-1000, 0});
             boomerang.Controller[2].Coords = player.position;

@@ -99,5 +99,5 @@ void UiLibrary::ProgressBar(const std::string& label, float remainingTime, float
     DrawRectangleRec(progressRect, remainingTime <= 0.0f ? BLUE : RED);
 
     // label text
-    DrawText(label.c_str(), bounds.x, bounds.y - 22, 20, DARKGRAY);
+    DrawText(label.c_str(), bounds.x, bounds.y - 22, 20, WHITE);
 }

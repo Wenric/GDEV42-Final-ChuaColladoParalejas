@@ -10,7 +10,7 @@ void Enemy::PhysicsUpdate(float TIMESTEP) {
     float down_force = (velocity.y * fall_timer) + (0.5 * 9.8 * pow(fall_timer, 2) * 7);
     
 
-    if (isFalling && down_force < 5) {
+    if (down_force < 5) {
         fall_timer += TIMESTEP;
     }
 
@@ -21,18 +21,32 @@ void Enemy::PhysicsUpdate(float TIMESTEP) {
 
 }
 
+
 void Enemy::Update(float delta_time) {
+    if (health <= 0) {
+        score += 50;
+        isAlive = false;
+        position = {1000, 100};
+    }
     current_state->Update(*this, delta_time);
+    isHit = false;
+}
+
+void Enemy::PassSoundInfo(Sound& hurt, Sound& attack) {
+    damage_sound = &hurt;
+    attack_sound = &attack;
 }
 
 void Enemy::Draw() {
     if (current_state==&attacking) {
-        DrawCircle(position.x, position.y,Clamp(attack_hurtbox_rad, 0, attack_rad), WHITE);
+    DrawCircle(position.x, position.y, Clamp(attack_hurtbox_rad, 0, attack_rad), RED);
     }
-    DrawCircle(position.x, position.y, radius, color);
-    DrawCircleLines(position.x,position.y,detect_rad, WHITE);
-    DrawCircleLines(position.x, position.y, aggro_rad, WHITE);
-    DrawCircleLines(position.x, position.y, attack_rad, WHITE);
+    // DrawCircle(position.x, position.y, radius, color);
+    DrawTexture(*texture, position.x - 32, position.y - 32, WHITE);
+   
+    // DrawCircleLines(position.x,position.y,detect_rad, WHITE);
+    // DrawCircleLines(position.x, position.y, aggro_rad, WHITE);
+    // DrawCircleLines(position.x, position.y, attack_rad, WHITE);
     
 }
 
@@ -71,12 +85,14 @@ void EnemyAttacking::Enter(Enemy& enemy) {
     enemy.color = RED;
     enemy.attack_dur = 0.4f;
     enemy.attack_hurtbox_rad = 0;
+    PlaySound(*enemy.attack_sound);
 }
 
-Enemy::Enemy(Vector2 pos, float rad, float spd) {
+Enemy::Enemy(Vector2 pos, float rad, float spd, Texture2D* tex, bool exists) {
     position = pos;
     radius = rad;
     speed = spd;
+    isAlive = exists;
     fall_timer = 0;
     color = WHITE;
     health = 10;
@@ -84,6 +100,7 @@ Enemy::Enemy(Vector2 pos, float rad, float spd) {
     velocity = Vector2Zero();
     direction = rand() % 2 == 0 ? 1.0f : -1.0f;
 
+    texture = tex;
     detect_rad = 600;
     aggro_rad = 404;
     attack_rad = 96;
@@ -143,7 +160,7 @@ void EnemyAttacking::Update(Enemy& enemy, float delta_time) {
         enemy.SetState(&enemy.wandering);
     }
     if(CheckCollisionCircles(enemy.position,enemy.attack_hurtbox_rad, enemy.player->position, enemy.player->radius)) {
-       enemy.player->TakeDamage(5);
+       enemy.player->TakeDamage(1);
     }
 
 }

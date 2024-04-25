@@ -3,6 +3,7 @@
 
 #include <raylib.h>
 #include <raymath.h>
+#include <vector>
 
 class Tile {
 public:
@@ -45,23 +46,14 @@ class Entity {
 public:
     Vector2 position;
     Vector2 velocity;
+    Texture2D* texture;
     float health;
     float radius;
     float speed;
     bool isAlive;
     bool isHit;
     float iframe_time;
-    Texture2D* texture; 
-
-    unsigned charaNumFrames;
-    int charaFrameWidth;
-    Rectangle walkFrameRec;
-
-    unsigned frameDelay;
-    unsigned frameDelayCounter;
-    unsigned frameIndex;
-
-    Rectangle frameRec;
+    Sound* damage_sound;
 
     void CheckTileCollision(const Rectangle tile) {
         Vector2 closest_point;
@@ -81,11 +73,16 @@ public:
     void TakeDamage(float dmg) {
         if (!isHit) {
             health -= dmg;
+            PlaySound(*damage_sound);
         }
         isHit = true;
         if (health <= 0) {
             isAlive = false;
         }
+    }
+
+    void Die() {
+        isAlive = false;
     }
 
 };
@@ -237,5 +234,11 @@ class Bezier {
             }
         }
 };
+
+
+struct ScoreEntry {
+        std::string name;
+        int score;
+    };
 
 #endif 

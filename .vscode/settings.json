@@ -98,6 +98,8 @@
     "stdexcept": "cpp",
     "streambuf": "cpp",
     "cinttypes": "cpp",
-    "typeinfo": "cpp"
-  }
+    "typeinfo": "cpp",
+    "*.m": "cpp"
+  },
+  "C_Cpp.errorSquiggles": "enabled"
 }

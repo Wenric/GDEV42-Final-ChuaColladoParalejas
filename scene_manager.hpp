@@ -126,6 +126,7 @@ public:
 const int WINDOW_HEIGHT = 720;
 const int WINDOW_WIDTH = 1280;
 const int FPS = 60;
+int score = 0;
 
 
 #endif

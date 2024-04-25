@@ -49,6 +49,7 @@ public:
     float gravity;
     float windup_time;
     float attack_hurtbox_rad;
+    Sound* attack_sound;
 
     bool isFalling;
     float fall_timer;
@@ -62,12 +63,13 @@ public:
     EnemyReadying readying;
     EnemyAttacking attacking;
 
-    Enemy(Vector2 pos, float rad, float spd);
+    Enemy(Vector2 pos, float rad, float spd, Texture2D* tex, bool exists);
     void PhysicsUpdate(float TIMESTEP);
     void Update(float delta_time);
     void Draw();
     void SetState(EnemyState* new_state);
     void PassPlayerInfo(Entity& player);
+    void PassSoundInfo(Sound& hurt, Sound& attack);
 
 private:
     EnemyState* current_state;

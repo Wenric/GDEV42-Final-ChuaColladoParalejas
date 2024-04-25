@@ -70,8 +70,9 @@ void Player::Update(float delta_time) {
 
 void Player::Draw() {
     DrawTexturePro(*texture, frameRec,
-            (Rectangle){position.x - 32, position.y - 32, 64, 64},
+            (Rectangle){position.x - 32, position.y - 38, 64, 64},
             (Vector2){0, 0}, 0, WHITE);
+    // DrawCircle(position.x, position.y, radius, color);
 }
 
 void Player::SetState(PlayerState* new_state) {

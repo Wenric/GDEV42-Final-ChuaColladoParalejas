@@ -39,7 +39,7 @@ void Enemy::PassSoundInfo(Sound& hurt, Sound& attack) {
 
 void Enemy::Draw() {
     if (current_state==&attacking) {
-    DrawCircle(position.x, position.y, Clamp(attack_hurtbox_rad, 0, attack_rad), RED);
+        DrawCircle(position.x, position.y, Clamp(attack_hurtbox_rad, 0, attack_rad), Fade(RED, 0.5f));
     }
     // DrawCircle(position.x, position.y, radius, color);
     DrawTexture(*texture, position.x - 32, position.y - 32, WHITE);

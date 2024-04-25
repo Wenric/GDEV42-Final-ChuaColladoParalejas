@@ -102,7 +102,7 @@ class GameScene : public Scene {
 
     //player instantiation
     Vector2 player_pos = {975, 192};
-    float player_rad = 32.0f;
+    float player_rad = 26.0f;
     float player_speed = 120.0f;
     const char *file_name = "resources/chara.png";
     Texture2D character = LoadTexture(file_name); 
@@ -265,6 +265,8 @@ public:
 
     void Update() override {
 
+        std::cout << player.radius << std::endl;
+
         float deltaTime = GetFrameTime();
        
         player.Update(deltaTime);
@@ -272,6 +274,9 @@ public:
         for (int i = 0; i < enemy_count; i++) {
             if (enemies[i].isAlive) {
                 enemies[i].Update(deltaTime);
+            }
+            else {
+                enemies[i].position = {-1000, 1000};
             }
         }
 
